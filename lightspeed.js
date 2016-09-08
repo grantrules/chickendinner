@@ -13,8 +13,8 @@ lightspeed.prototype.login = function() {
 // post data: login_name=grant%40ridebrooklynny.com&login_password=xxxxx&form_name=login&cordova=0
 	request.post({
 		url: 'https://east27.merchantos.com/register.php',
-		formData: {login_name: this.user, login_password: this.password, form_name: 'login', cordova: 0},
-	});
+		form: {login_name: this.user, login_password: this.password, form_name: 'login', cordova: 0},
+	}, function(err, res, body) { console.dir(res.headers.location); });
 };
 
 // date format: yyyy-mm-dd, store is store id
