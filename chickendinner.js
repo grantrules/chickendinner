@@ -2,6 +2,7 @@
 var argv = require('minimist')(process.argv.slice(2));
 var http = require('http');
 var later = require('later');
+var merge = require('merge-descriptors');
 var lightspeed = require('./lightspeed');
 
 
@@ -12,16 +13,20 @@ var ls = new lightspeed(username, password);
 
 var totals = {'williamsburg': 0,'bergen': 0};
 
-http.createServer(function (req, res) {
-  res.writeHead(200, {'Content-Type': 'text/plain'});
-  res.end('Hello World\n');
-}).listen(8080);
+var app = function(req,res) {
+    ls.handle(req,res);
+};
+
+merge(app,ls);
+
+http.createServer(app).listen(8080);
 
 console.log('Server running on port 8080.');
 
 var scheduled_job = function(lightspeed, totals) {
 	console.log('running scheduled job');
-    lightspeed.login();
+    
+    lightspeed.update_totals();    
 	
 };
 

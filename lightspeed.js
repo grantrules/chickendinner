@@ -1,24 +1,56 @@
+var merge = require('merge-descriptors');
 var request = require('request');
 var request = request.defaults({jar: true});
 
 var lightspeed = function(_user, _pass) {
-  this.user = _user;
-  this.password = _pass;
-  this.WILLIAMSBURG_ID = 5;
-  this.BERGEN_ID = 3;
+    this.user = _user;
+    this.password = _pass;
+    this.WILLIAMSBURG_ID = 5;
+    this.BERGEN_ID = 3;
+    this.totals = {williamsburg: 0, bergen: 0};
+
 };
 
+lightspeed.prototype.handle = function(req, res) {
+    res.writeHead(200, {'Content-Type': 'text/plain'});
+    res.end('Hello World\n');
+};
+
+lightspeed.prototype.update_totals = function() {
+    this.login();
+}
+
+lightspeed.prototype.callback_total = function() {
+    
+}
+
+lightspeed.prototype.callback_login_confirm = function(err, res, body) {
+    // todo: throw error here? shutdown?
+    console.log("confirm login?");
+    
+    // should contain acct number, set to 0 if logged out
+    if (parseInt(res.headers['x-ls-acct-id']) > 0) {
+        console.log("yes. logged in");
+        debugger; // fucks out of scope
+        lightspeed.fetch_daily_payments_received(this.WILLIAMSBURG_ID, [Date.now().getYear, Date.now().getMonth, ""].join("-"));
+    }
+    else {
+        console.log("no. login failed");
+    }
+}
+
 lightspeed.prototype.login = function() {
-// https://east27.merchantos.com/register.php
-// post data: login_name=grant%40ridebrooklynny.com&login_password=xxxxx&form_name=login&cordova=0
+    var that = this;
 	request.post({
 		url: 'https://east27.merchantos.com/register.php',
 		form: {login_name: this.user, login_password: this.password, form_name: 'login', cordova: 0},
-	}, function(err, res, body) { console.dir(res.headers.location); });
+	}, that.callback_login_confirm);
 };
 
 // date format: yyyy-mm-dd, store is store id
-lightspeed.prototype.fetch_daily_payments_received = function(date, store) {
+lightspeed.prototype.fetch_daily_payments_received = function(store, date) {
+    date = date || [Date.now().getYear, Date.now().getMonth,  Date.now().getDay()].join("-");
+    console.log(date);
 	request.get({
 		url: 'https://east27.merchantos.com/ajax_forms.php',
 		qs: {
