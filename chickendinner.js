@@ -17,7 +17,8 @@ var app = function(req,res) {
     ls.handle(req,res);
 };
 
-ls.totals = {bergen:1, williamsburg:1};
+ls.totals[ls.BERGEN_ID] = 1;
+ls.totals[ls.WILLIAMSBURG_ID] = 1;
 
 merge(app,ls);
 
