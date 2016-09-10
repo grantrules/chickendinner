@@ -3,10 +3,10 @@ var request = require('request');
 var request = request.defaults({jar: true});
 
 var lightspeed = function(_user, _pass) {
-    this.user = _user;
-    this.password = _pass;
-    this.WILLIAMSBURG_ID = 5;
-    this.BERGEN_ID = 3;
+  this.user = _user;
+  this.password = _pass;
+  this.WILLIAMSBURG_ID = 5;
+  this.BERGEN_ID = 3;
     this.totals = {williamsburg: 0, bergen: 0};
 
 };
@@ -16,8 +16,8 @@ lightspeed.prototype.handle = function(req, res) {
     res.end('Hello World\n');
 };
 
-lightspeed.prototype.update_totals = function() {
-    this.login();
+lightspeed.prototype.update_totals = function(ls) {
+    this.login(ls);
 }
 
 lightspeed.prototype.callback_total = function() {
@@ -25,6 +25,9 @@ lightspeed.prototype.callback_total = function() {
 }
 
 lightspeed.prototype.callback_login_confirm = function(err, res, body) {
+    //console.dir(res.headers.location);
+    //console.dir(this);
+    
     // todo: throw error here? shutdown?
     console.log("confirm login?");
     
@@ -32,25 +35,36 @@ lightspeed.prototype.callback_login_confirm = function(err, res, body) {
     if (parseInt(res.headers['x-ls-acct-id']) > 0) {
         console.log("yes. logged in");
         debugger; // fucks out of scope
-        lightspeed.fetch_daily_payments_received(this.WILLIAMSBURG_ID, [Date.now().getYear, Date.now().getMonth, ""].join("-"));
+        this.fetch_daily_payments_received(this.WILLIAMSBURG_ID);
     }
     else {
         console.log("no. login failed");
     }
+    //console.dir(res.headers.location);
+    //console.dir(this);
 }
 
-lightspeed.prototype.login = function() {
-    var that = this;
+lightspeed.prototype.login = function(ls) {
+// https://east27.merchantos.com/register.php
+// post data: login_name=grant%40ridebrooklynny.com&login_password=xxxxx&form_name=login&cordova=0
+    
+    var lapp = function(err, res, body) {
+        //console.dir(this);
+        ls.callback_login_confirm(err, res, body);
+    }
+    merge(lapp,ls);
+    
 	request.post({
 		url: 'https://east27.merchantos.com/register.php',
 		form: {login_name: this.user, login_password: this.password, form_name: 'login', cordova: 0},
-	}, that.callback_login_confirm);
+	}, lapp);
 };
 
 // date format: yyyy-mm-dd, store is store id
 lightspeed.prototype.fetch_daily_payments_received = function(store, date) {
-    date = date || [Date.now().getYear, Date.now().getMonth,  Date.now().getDay()].join("-");
-    console.log(date);
+    date = date || (new Date()).toISOString().slice(0,10);
+    
+    console.log("checking store "+store+" for "+date);
 	request.get({
 		url: 'https://east27.merchantos.com/ajax_forms.php',
 		qs: {

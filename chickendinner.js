@@ -17,6 +17,8 @@ var app = function(req,res) {
     ls.handle(req,res);
 };
 
+ls.totals = {bergen:1, williamsburg:1};
+
 merge(app,ls);
 
 http.createServer(app).listen(8080);
@@ -25,8 +27,7 @@ console.log('Server running on port 8080.');
 
 var scheduled_job = function(lightspeed, totals) {
 	console.log('running scheduled job');
-    
-    lightspeed.update_totals();    
+    lightspeed.update_totals(lightspeed);    
 	
 };
 
