@@ -1,7 +1,7 @@
 var merge = require('merge-descriptors');
 var request = require('request');
 var request = request.defaults({jar: true});
-const pug = require('pug');
+//const pug = require('pug');
 
 var lightspeed = function(_user, _pass) {
     this.user = _user;
@@ -10,47 +10,6 @@ var lightspeed = function(_user, _pass) {
     this.BERGEN_ID = 3;
     this.totals = {};
 
-};
-
-lightspeed.prototype.handle = function(req, res) {
-    //console.dir(req);
-    //console.log(req.method);
-    
-    if (req.method == "GET") {
-        console.log('get:'+ req.url.split('?').shift());
-        switch (req.url.split('?').shift()) {
-            case '/':
-                this.return_page(res, 'templates/index.pug', {});
-                break;
-            default:
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end("Doesn't exist, sorry bro");
-                break;
-        }
-    }
-    else if (req.method == "POST") {
-        console.log('post');
-
-        switch (req.url) {
-            case '/login':
-                break;
-            default:
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end("Doesn't exist, sorry bro");
-                break;
-        }
-        
-    }
-    
-};
-
-lightspeed.prototype.return_page = function(res, template, data) {
-    //var compiledFunction = pug.compileFile(template);
-    //res.write(compiledFunction(data));
-    var html = pug.renderFile(template, data);
-    console.log(html.length);
-    res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': html.length, 'Connection': 'close'});
-    res.end(html);
 };
 
 lightspeed.prototype.update_totals = function(ls) {
@@ -131,18 +90,7 @@ lightspeed.prototype.fetch_daily_payments_received = function(store, date) {
 key_values:'{"start_date":"'+date+'","'+date+'":"2016-09-10","payment_type_id":"-1","register_id":"-1","shop_id":"'+store+'"}',
 pannel_id:"listing",
         }
-        /* // shit didn't work, url encoding was exactly what was above, not what this turns into a querystring
-		qs: {
-			ajax:1,
-			no_cache:1473129016082,
-			form_name:"listing.refresh",
-			ajax_listing:{"draw_all":false,"draw_tab_only":false,"name":"reports.register.listings.payments","request":false,"saved_search":{"start_date":date,"end_date":date,"payment_type_id":"-1","register_id":"-1","shop_id":store},"sort":"amount","sort_dir":"DESC","count":"105","page":1,"page_count":2,"tab":"single","display_search":true,"display_advanced":"1","page_size":"100","max_size":100,"page_controls":true,"is_child_list":false,"title":"Payments","type":"listing","deleted_rows":null,"user_search":true},
-			key_values:{"start_date":this.date,"end_date":this.date,"payment_type_id":"-1","register_id":"-1","shop_id":store},
-			pannel_id:"listing",
-		}
-        */
     }, lapp);
-	//}).on('response', lapp);
 };
 
 lightspeed.prototype.close = function() {

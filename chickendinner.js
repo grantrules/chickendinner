@@ -4,23 +4,23 @@ var http = require('http');
 var later = require('later');
 var merge = require('merge-descriptors');
 var lightspeed = require('./lightspeed');
+var server = require('./server');
 
 
 var username = argv['u'];
 var password = argv['p'];
 
 var ls = new lightspeed(username, password);
-
-//var totals = {'williamsburg': 0,'bergen': 0};
-
-var app = function(req,res) {
-    ls.handle(req,res);
-};
-
 ls.totals[ls.BERGEN_ID] = 1;
 ls.totals[ls.WILLIAMSBURG_ID] = 1;
 
-merge(app,ls);
+var server = new server(ls);
+
+var app = function(req,res) {
+    server.handle(req,res);
+};
+
+merge(app,server);
 
 http.createServer(app).listen(8080);
 
