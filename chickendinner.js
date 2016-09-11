@@ -1,13 +1,10 @@
 "use strict";
 var argv = require('minimist')(process.argv.slice(2));
-//var http = require('http');
 var later = require('later');
-//var merge = require('merge-descriptors');
 var lightspeed = require('./lightspeed');
-//var server = require('./server');
 var express = require('express');
 var session = require('express-session');
-
+var bodyParser = require('body-parser');
 
 
 
@@ -29,14 +26,15 @@ app.use(session({
 
 app.set('view engine', 'pug');
 app.set('views', './views');
-//app.use(express.bodyParser());
+
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
 
 
 app.locals.lightspeed = ls;
 
 app.get('/', function(req, res) {
     res.render('index', {});
-
 });
 
 app.get('/totals', function(req,res) {
@@ -49,7 +47,8 @@ app.get('/totals', function(req,res) {
     
 });
 
-app.post('/login', function(req,res) {
+app.post('/login', urlencodedParser, function(req,res) {
+    console.dir('posted '+req.body.password)
     //res.render('templates/index', {});
 });
 
@@ -58,19 +57,6 @@ app.listen(8080, function () {
   console.log('Example app listening on port 3000!');
 });
 
-/*
-var server = new server(ls);
-
-var app = function(req,res) {
-    server.handle(req,res);
-};
-
-merge(app,server);
-
-http.createServer(app).listen(8080);
-
-console.log('Server running on port 8080.');
-*/
 
 
 
