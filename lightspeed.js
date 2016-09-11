@@ -1,6 +1,7 @@
 var merge = require('merge-descriptors');
 var request = require('request');
 var request = request.defaults({jar: true});
+const pug = require('pug');
 
 var lightspeed = function(_user, _pass) {
     this.user = _user;
@@ -12,9 +13,44 @@ var lightspeed = function(_user, _pass) {
 };
 
 lightspeed.prototype.handle = function(req, res) {
-    res.writeHead(200, {'Content-Type': 'text/plain'});
-    res.end('Hello World\n'+this.totals[this.WILLIAMSBURG_ID]);
+    //console.dir(req);
+    //console.log(req.method);
     
+    if (req.method == "GET") {
+        console.log('get:'+ req.url.split('?').shift());
+        switch (req.url.split('?').shift()) {
+            case '/':
+                this.return_page(res, 'templates/index.pug', {});
+                break;
+            default:
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end("Doesn't exist, sorry bro");
+                break;
+        }
+    }
+    else if (req.method == "POST") {
+        console.log('post');
+
+        switch (req.url) {
+            case '/login':
+                break;
+            default:
+                res.writeHead(404, {'Content-Type': 'text/plain'});
+                res.end("Doesn't exist, sorry bro");
+                break;
+        }
+        
+    }
+    
+};
+
+lightspeed.prototype.return_page = function(res, template, data) {
+    //var compiledFunction = pug.compileFile(template);
+    //res.write(compiledFunction(data));
+    var html = pug.renderFile(template, data);
+    console.log(html.length);
+    res.writeHead(200, {'Content-Type': 'text/html', 'Content-Length': html.length, 'Connection': 'close'});
+    res.end(html);
 };
 
 lightspeed.prototype.update_totals = function(ls) {

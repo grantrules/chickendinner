@@ -11,7 +11,7 @@ var password = argv['p'];
 
 var ls = new lightspeed(username, password);
 
-var totals = {'williamsburg': 0,'bergen': 0};
+//var totals = {'williamsburg': 0,'bergen': 0};
 
 var app = function(req,res) {
     ls.handle(req,res);
@@ -26,20 +26,20 @@ http.createServer(app).listen(8080);
 
 console.log('Server running on port 8080.');
 
-var scheduled_job = function(lightspeed, totals) {
+
+var scheduled_job = function(lightspeed) {
 	console.log('running scheduled job');
     lightspeed.update_totals(lightspeed);    
 	
 };
-
-
-scheduled_job(ls,totals);
+/*
+scheduled_job(ls);
 
 // every 15 minutes from 9am - 8pm.
 var cronSched = later.parse.recur().every(5).minute().after('00:00').time().before('19:00').time();
 var timer = later.setInterval(scheduled_job.bind(null, ls, totals), cronSched);
 
-
+*/
 
 
 
