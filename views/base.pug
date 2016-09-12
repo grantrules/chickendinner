@@ -1,11 +1,96 @@
 //- base.pug
-html
+doctype html
+html(lang="en")
   head
     title Winner Winner Chicken Dinner
     block scripts
-      script(src='/jquery.js')
+      script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
+      script(type="text/javascript").
+        // form submit thingy
+        $(function() {
+            $("#loginform").submit(function(e) {
+
+                e.preventDefault();
+
+                var actionurl = e.currentTarget.action;
+
+                $.ajax({
+                        url: actionurl,
+                        type: 'post',
+                        dataType: 'json',
+                        data: $("#loginform").serialize(),
+                        success: function(data) {
+                            alert(data);
+                            
+                            if (data == "ok") {
+                                loggedin();
+                            } else {
+                                loggedout();
+                                $("#loginerrmsg").text("Login failed. Try again.");
+                            }
+                        }
+                });
+
+            });
+
+        });
+        
+        var loggedin = function() {
+            // start up. make sure things aren't already running
+            $("#login").hide();
+        
+        }
+        
+        var loggedout = function() {
+        
+        }
+        
+        var totals = function() {
+        
+        }
+        
+        totals.prototype.start_timer = function () {
+        
+        }
+
+        
+    style(type="text/css").
+        body { margin: 0; padding: 0; }
+        h1 { background-color: #2794EB; color: white; margin: 0; padding: 15px;}
+        #chart {
+            background-color: aliceblue;
+            padding: 15px;
+            width:  65%;
+            margin: 0 auto;
+            height: 450px;
+        }
+
+        #williamsburg > div > div {
+            background-color: #47D6B6;
+        }
+
+        #bergen > div > div {
+            background-color: #17B3C1;
+        }
+
+        #bergen {
+            width: 40%;
+            float:  right;
+        }
+
+        #williamsburg {
+            width: 40%;
+            float: left;
+        }
+        
+        #footer {
+            background-color: #BFF8D4;
+            color: white; margin: 0; padding: 5px 15px;
+            
+        }
+        
   body
     block content
     block foot
       #footer
-        p some footer content
+        p(class="footer") some footer content

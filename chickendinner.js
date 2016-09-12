@@ -25,7 +25,6 @@ app.use(session({
 }));
 
 app.set('view engine', 'pug');
-app.set('views', './views');
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false })
@@ -48,13 +47,20 @@ app.get('/totals', function(req,res) {
 });
 
 app.post('/login', urlencodedParser, function(req,res) {
-    console.dir('posted '+req.body.password)
-    //res.render('templates/index', {});
+    console.dir('posted '+req.body.password);
+    res.writeHead(200, {"Content-Type": "application/json"});
+    if (req.body.password == "abc123") {
+        req.session.loggedin = true;
+        res.end(JSON.stringify("ok"));
+    } else {
+        req.session.loggedin = false;
+        res.end(JSON.stringify("not logged in"));
+    }
 });
 
 
 app.listen(8080, function () {
-  console.log('Example app listening on port 3000!');
+  console.log('server listening on 8080');
 });
 
 
