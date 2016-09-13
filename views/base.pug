@@ -6,7 +6,57 @@ html(lang="en")
     block scripts
       script(src='https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js')
       script(type="text/javascript").
-        // form submit thingy
+         var totals = function() {
+        
+        }
+        
+        totals.totalheight = 1000;
+        totals.minpercent = 3;
+        totals.maxpercent = 90;
+        
+        totals.start_timer = function () {
+            this.timer = setInterval(totals.timer_func, 60000);
+            totals.timer_func();
+        }
+        
+        totals.timer_func = function(){
+            $.ajax({
+                url: '/totals',
+                type: 'get',
+                dataType: 'json',
+                success: function(data) {
+                    if (typeof data == "object") {
+                        // success
+                        
+                        h = Math.max(data[5],data[3]);
+                        if (h > totals.totalheight) {
+                            totals.totalheight = Math.round(h/1000)*1000 + 1000;
+                        }
+                        
+                        update_bar('williamsburg', data[5]);
+                        update_bar('bergen', data[3]);
+                    }
+                    // string is probably an error
+                }
+            });
+        }
+        
+        this.stop_timer = function() {
+            clearInterval(this.timer);
+        }
+        
+        update_bar = function(store, total) {
+            if (typeof store != "object") {
+                store = $('#'+store);
+            }
+            
+            height = (total / totals.totalheight * (totals.maxpercent - totals.minpercent)) + totals.minpercent;
+            store.find('.total').text("$"+total);
+            store.find('.color').height(height+'%');
+        }
+
+
+
         $(function() {
             $("#loginform").submit(function(e) {
 
@@ -19,9 +69,7 @@ html(lang="en")
                         type: 'post',
                         dataType: 'json',
                         data: $("#loginform").serialize(),
-                        success: function(data) {
-                            alert(data);
-                            
+                        success: function(data) {                            
                             if (data == "ok") {
                                 loggedin();
                             } else {
@@ -32,62 +80,66 @@ html(lang="en")
                 });
 
             });
-
+            
         });
+        
         
         var loggedin = function() {
             // start up. make sure things aren't already running
             $("#login").hide();
+            totals.start_timer();
         
         }
         
         var loggedout = function() {
+            totals.stop_timer();
         
         }
         
-        var totals = function() {
-        
-        }
-        
-        totals.prototype.start_timer = function () {
-        
-        }
-
-        
+       
+    link(rel="stylesheet",type="text/css",href="https://www.redditstatic.com/expando.EmkujVgiDq4.css")
+    
     style(type="text/css").
-        body { margin: 0; padding: 0; }
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
         h1 { background-color: #2794EB; color: white; margin: 0; padding: 15px;}
         #chart {
+            vertical-align: bottom;
+            display:table;
+            table-layout: fixed;  
             background-color: aliceblue;
             padding: 15px;
             width:  65%;
             margin: 0 auto;
             height: 450px;
         }
+        .color {
+            height:90%;
+            background: blue;
 
-        #williamsburg > div > div {
-            background-color: #47D6B6;
+        }
+        .bar { height: 30%; }
+        .store {
         }
 
-        #bergen > div > div {
-            background-color: #17B3C1;
+        #williamsburg, #bergen {
+            display:table-cell;
+            vertical-align: bottom;
+            width:40%;
+            text-align:center;
+            padding: 15px;
         }
-
-        #bergen {
-            width: 40%;
-            float:  right;
-        }
-
-        #williamsburg {
-            width: 40%;
-            float: left;
-        }
-        
+        #williamsburg { margin: 10%; background: aqua; }
+        #bergen { margin: 10%; background: yellow; }
         #footer {
             background-color: #BFF8D4;
             color: white; margin: 0; padding: 5px 15px;
             
         }
+        
         
   body
     block content

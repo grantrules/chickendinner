@@ -26,9 +26,13 @@ lightspeed.prototype.callback_fetch_daily_payments_received = function(err, res,
     var shop_id = res.body.match(re_shopid);
     
     //these are going to throw errors if they don't find anything..
-
-    total = total[1];
+    if (shop_id == null || total == null) {
+        console.log(res.body);
+        console.log('no matches but logged in, look up');
+        return;
+    }
     shop_id = shop_id[1];
+    total = total[1];
     
     this.totals[shop_id] = total;
 
@@ -86,7 +90,7 @@ lightspeed.prototype.fetch_daily_payments_received = function(store, date) {
             ajax:1,
             no_cache:1473492616824,
             form_name:"listing.refresh",
-            ajax_listing:'{"draw_all":false,"draw_tab_only":false,"name":"reports.register.listings.payments","request":false,"saved_search":{"start_date":"2016-09-10","end_date":"2016-09-10","payment_type_id":"-1","register_id":"-1","shop_id":"3"},"sort":"amount","sort_dir":"DESC","count":"0","page":1,"page_count":0,"tab":"single","display_search":true,"display_advanced":"1","page_size":"100","max_size":100,"page_controls":true,"is_child_list":false,"title":"Payments","type":"listing","deleted_rows":null,"user_search":true}',
+            ajax_listing:'{"draw_all":false,"draw_tab_only":false,"name":"reports.register.listings.payments","request":false,"saved_search":{"start_date":"'+date+'","end_date":"'+date+'","payment_type_id":"-1","register_id":"-1","shop_id":"'+store+'"},"sort":"amount","sort_dir":"DESC","count":"0","page":1,"page_count":0,"tab":"single","display_search":true,"display_advanced":"1","page_size":"100","max_size":100,"page_controls":true,"is_child_list":false,"title":"Payments","type":"listing","deleted_rows":null,"user_search":true}',
 key_values:'{"start_date":"'+date+'","'+date+'":"2016-09-10","payment_type_id":"-1","register_id":"-1","shop_id":"'+store+'"}',
 pannel_id:"listing",
         }

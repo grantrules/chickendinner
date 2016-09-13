@@ -1,6 +1,6 @@
 "use strict";
 var argv = require('minimist')(process.argv.slice(2));
-var later = require('later');
+var later = require('later');later.date.localTime();
 var lightspeed = require('./lightspeed');
 var express = require('express');
 var session = require('express-session');
@@ -13,8 +13,8 @@ var username = argv['u'];
 var password = argv['p'];
 
 var ls = new lightspeed(username, password);
-ls.totals[ls.BERGEN_ID] = 1;
-ls.totals[ls.WILLIAMSBURG_ID] = 1;
+ls.totals[ls.BERGEN_ID] = 0;
+ls.totals[ls.WILLIAMSBURG_ID] = 0;
 
 var app = express();
 
@@ -47,7 +47,6 @@ app.get('/totals', function(req,res) {
 });
 
 app.post('/login', urlencodedParser, function(req,res) {
-    console.dir('posted '+req.body.password);
     res.writeHead(200, {"Content-Type": "application/json"});
     if (req.body.password == "abc123") {
         req.session.loggedin = true;
@@ -71,16 +70,10 @@ var scheduled_job = function(lightspeed) {
     lightspeed.update_totals(lightspeed);    
 	
 };
-/*
+
 scheduled_job(ls);
 
 // every 15 minutes from 9am - 8pm.
-var cronSched = later.parse.recur().every(5).minute().after('00:00').time().before('19:00').time();
-var timer = later.setInterval(scheduled_job.bind(null, ls, totals), cronSched);
-
-*/
-
-
-
-
+var cronSched = later.parse.recur().every(5).minute().after('08:00').time().before('19:00').time();
+var timer = later.setInterval(scheduled_job.bind(null, ls), cronSched);
 
