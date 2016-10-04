@@ -1,87 +1,81 @@
-pug = require('pug');
-later = require('later');
+"use strict";
+var argv = require('minimist')(process.argv.slice(2));
+var later = require('later');later.date.localTime();
+var lightspeed = require('./lightspeed');
+var express = require('express');
+var session = require('express-session');
+var bodyParser = require('body-parser');
 
-var server = function (ls) {
-    this.lightspeed = ls;
-    this.sessions = new Obect(); // allows delete to work
-    this.timeout = 120 * 60000;
-    this.session_name = "cdsession";
-    this.session_cron = later.setInterval(function() { console.log("session cleanup.. "+this.sessions.length+" keys."); this.clean_sessions(); }, later.parse.recur().every(30).minute());
-};
+var path = require('path');
 
-server.prototype.is_logged_in = function(req) {
-    // cookies
+
+
+var username = argv['u'];
+var password = argv['p'];
+
+var ls = new lightspeed(username, password);
+ls.totals[ls.BERGEN_ID] = 0;
+ls.totals[ls.WILLIAMSBURG_ID] = 0;
+
+var app = express();
+
+app.use(session({
+  secret: 'keyboard cat',
+  resave: false,
+  saveUninitialized: true
+}));
+
+app.set('view engine', 'pug');
+app.set('views', path.join(__dirname, 'views'));
+
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false })
+
+
+app.locals.lightspeed = ls;
+
+app.get('/', function(req, res) {
+    res.render('index', {});
+});
+
+app.get('/totals', function(req,res) {
     
-};
-
-server.prototype.is_active_session = function(key, now) {
-    now = now || new Date(Date().now);
-    return this.sessions.hasOwnProperty(key)
-        && now - this.sessions[key] > this.timeout;
-};
-
-// run this as a schedule
-server.prototype.clean_sessions = function() {
-    var now = new Date(Date.now());
-    // minutes
-    for (var key in this.sessions) {
-        if (!this.is_active_session(key, now)) {
-            delete this.sessions[key];
-        }
-    }
-};
-
-server.prototype.handle = function(req, res) {
-    if (req.method == "GET") {
-        console.log('get:'+ req.url.split('?').shift());
-        switch (req.url.split('?').shift()) {
-            case '/':
-                this.return_page(res, 'templates/index.pug', {totals:this.lightspeed.totals});
-                break;
-            case '/totals':
-                this.return_page(res, 'templates/totals.pug', {totals:this.lightspeed.totals, loggedin:this.is_logged_in(req)}, {cookies: {}});
-                break;
-            default:
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end("Doesn't exist, sorry bro");
-                break;
-        }
-    }
-    else if (req.method == "POST") {
-        console.log('post');
-
-        switch (req.url) {
-            case '/login':
-                
-                if (login) {
-                    var session_key = this.new_session_key();
-                    var date = new Date(Date().now);
-                    this.sessions[session_key] = date;
-                }
-                break;
-            default:
-                res.writeHead(404, {'Content-Type': 'text/plain'});
-                res.end("Doesn't exist, sorry bro");
-                break;
-        }
-        
-    }
-    
-};
-
-server.prototype.return_page = function(res, template, data) {
-    var html = "";
-    var contenttype = "text/html";
-    if (template == "json") {
-        html = JSON.stringify(data);
-        contenttype = "application/json";
+    if (req.session.loggedin) {
+        res.end(JSON.stringify(req.app.locals.lightspeed.totals));
     } else {
-        html = pug.renderFile(template, data);
-
+        res.end(JSON.stringify("Please log in"));
     }
-    console.log(html.length);
-    res.writeHead(200, {'Content-Type': contenttype, 'Content-Length': html.length, 'Connection': 'close'});
-    res.end(html);
+    
+});
+
+app.post('/login', urlencodedParser, function(req,res) {
+    res.writeHead(200, {"Content-Type": "application/json"});
+    if (req.body.password == "abc123") {
+        req.session.loggedin = true;
+        res.end(JSON.stringify("ok"));
+    } else {
+        req.session.loggedin = false;
+        res.end(JSON.stringify("not logged in"));
+    }
+});
+
+
+app.listen(8080, function () {
+  console.log('server listening on 8080');
+});
+
+
+
+
+var scheduled_job = function(lightspeed) {
+	console.log('running scheduled job');
+    //lightspeed.update_totals(lightspeed);    
+	
 };
 
-module.exports = server;
+scheduled_job(ls);
+
+// every 15 minutes from 9am - 8pm.
+var cronSched = later.parse.recur().every(5).minute().after('08:00').time().before('19:00').time();
+var timer = later.setInterval(scheduled_job.bind(null, ls), cronSched);
+

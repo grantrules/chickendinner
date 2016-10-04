@@ -1,0 +1,26 @@
+{
+  "name": "chickendinner",
+  "version": "0.0.1",
+  "description": "Lightspeed store totals chart",
+  "author": "harding, grant <gharding@gmail.com>",
+  "license": "Apache License, Version 2.0",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "express-session": "^1.14.1",
+    "later": "^1.2.0",
+    "merge-descriptors": "^1.0.1",
+    "minimist": "^1.2.0",
+    "path": "^0.12.7",
+    "pug": "^2.0.0-beta6",
+    "request": "^2.75.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/grantrules/chickendinner.git"
+  }
+}

@@ -1,0 +1,14 @@
+chickendinner
+
+node package
+
+run with:
+
+node chickendinner -u lightspeedlogin -p lightspeedpassword
+
+starts server on localhost:8080
+
+hardcoded password is abc123
+
+displays the daily totals for the 4th and 5th store in lightspeed
+updates periodically
