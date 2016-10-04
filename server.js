@@ -69,7 +69,7 @@ app.listen(8080, function () {
 
 var scheduled_job = function(lightspeed) {
 	console.log('running scheduled job');
-    //lightspeed.update_totals(lightspeed);    
+    lightspeed.update_totals(lightspeed);    
 	
 };
 
