@@ -79,3 +79,5 @@ scheduled_job(ls);
 var cronSched = later.parse.recur().every(5).minute().after('08:00').time().before('19:00').time();
 var timer = later.setInterval(scheduled_job.bind(null, ls), cronSched);
 
+var timer2 = setInterval(function() {console.log('checking queue');console.log(ls.queue);ls.queue.do_next();},10000)
+
